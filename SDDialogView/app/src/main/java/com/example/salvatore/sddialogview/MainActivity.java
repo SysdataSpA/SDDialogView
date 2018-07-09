@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -40,6 +42,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         if(view == mShowBtn){
             customDialog = new CustomDialog(this);
+            ScaleAnimation animation = new ScaleAnimation(1f, 1f, 0f, 1f);
+            animation.setInterpolator(new BounceInterpolator());
+            animation.setDuration(600);
             dialogView = new SDDialogView.Builder()
                     .with(this)
                     .contentView(customDialog)
@@ -51,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     })
                     .requestCode(REQUEST_CODE)
+                    .enterAnimation(animation)
                     .build();
             dialogView.showDialog(mMainContainer);
         }

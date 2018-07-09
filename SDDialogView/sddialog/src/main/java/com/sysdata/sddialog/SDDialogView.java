@@ -6,6 +6,9 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 
 import com.example.sddialog.R;
@@ -17,6 +20,7 @@ import java.lang.ref.WeakReference;
  */
 
 public class SDDialogView extends View implements View.OnClickListener {
+    private Animation enterAnimation;
     private int requestCode;
     private boolean cancelable;
     private WeakReference<View> contentView;
@@ -66,6 +70,19 @@ public class SDDialogView extends View implements View.OnClickListener {
         layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
         this.parent.get().addView(view.get(), layoutParams);
         if (contentView != null && contentView.get() instanceof Compatible) {
+            if (enterAnimation != null) {
+                contentView.get().addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
+                    @Override
+                    public void onViewAttachedToWindow(View view) {
+                        view.startAnimation(enterAnimation);
+                    }
+
+                    @Override
+                    public void onViewDetachedFromWindow(View view) {
+
+                    }
+                });
+            }
             dialogContainer.removeAllViews();
             ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -108,9 +125,17 @@ public class SDDialogView extends View implements View.OnClickListener {
         contentView = new WeakReference<View>(builder.contentView);
         onCloseListener = new WeakReference<OnDialogCloseListener>(builder.listener);
         requestCode = builder.requestCode;
+        enterAnimation = builder.enterAnimation != null ? builder.enterAnimation:getFadeInAnimation();
         builder.context = null;
         builder.contentView = null;
         builder.listener = null;
+    }
+
+    private Animation getFadeInAnimation(){
+        AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
+        fadeIn.setInterpolator(new DecelerateInterpolator());
+        fadeIn.setDuration(600);
+        return fadeIn;
     }
 
     public static final class Builder {
@@ -132,6 +157,7 @@ public class SDDialogView extends View implements View.OnClickListener {
             // listener called when closing the dialog
             private OnDialogCloseListener listener;
             private int requestCode;
+            private Animation enterAnimation;
 
             InnerBuilder(Context context) {
                 this.context = context;
@@ -153,6 +179,11 @@ public class SDDialogView extends View implements View.OnClickListener {
 
             public InnerBuilder requestCode(int val) {
                 requestCode = val;
+                return this;
+            }
+
+            public InnerBuilder enterAnimation(Animation val) {
+                enterAnimation = val;
                 return this;
             }
 
