@@ -16,7 +16,7 @@ import java.lang.ref.WeakReference;
  * Created by Salvatore on 28/06/2018.
  */
 
-public class SDDialogView extends View implements View.OnClickListener{
+public class SDDialogView extends View implements View.OnClickListener {
     private int requestCode;
     private boolean cancelable;
     private WeakReference<View> contentView;
@@ -45,48 +45,48 @@ public class SDDialogView extends View implements View.OnClickListener{
 
     @Override
     public void onClick(View view) {
-        if(view.getId() == R.id.dialog_container) {
-            if(cancelable) {
+        if (view.getId() == R.id.dialog_container) {
+            if (cancelable) {
                 closeDialog();
             }
         }
     }
 
-    public void showDialog(ViewGroup parent){
+    public void showDialog(ViewGroup parent) {
         this.parent = new WeakReference<ViewGroup>((ViewGroup) parent.getParent());
         if (view == null || view.get() == null) {
             view = new WeakReference<View>(LayoutInflater.from(getContext()).inflate(R.layout.dialog_view, null));
         }
         LinearLayout dialogContainer = (LinearLayout) view.get().findViewById(R.id.dialog_container);
-        if(dialogContainer == null)
+        if (dialogContainer == null)
             return;
         dialogContainer.setOnClickListener(this);
         ViewGroup.LayoutParams layoutParams = parent.getLayoutParams();
         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
         layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
         this.parent.get().addView(view.get(), layoutParams);
-        if(contentView != null && contentView.get() instanceof Compatible) {
+        if (contentView != null && contentView.get() instanceof Compatible) {
             dialogContainer.removeAllViews();
             ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             dialogContainer.addView(contentView.get(), params);
-            ((Compatible)contentView.get()).onBindParentView(this);
+            ((Compatible) contentView.get()).onBindParentView(this);
         }
     }
 
-    public void closeDialog(){
+    public void closeDialog() {
         closeDialog(0);
     }
 
-    public void closeDialog(int resultCode){
-        if(onCloseListener != null && onCloseListener.get() != null)
-            onCloseListener.get().onClose(requestCode,resultCode);
-        if (parent != null && parent.get() != null && view != null && view.get() !=  null) {
+    public void closeDialog(int resultCode) {
+        if (onCloseListener != null && onCloseListener.get() != null)
+            onCloseListener.get().onClose(requestCode, resultCode);
+        if (parent != null && parent.get() != null && view != null && view.get() != null) {
             parent.get().removeView(view.get());
         }
         if (contentView != null && contentView.get() instanceof Compatible) {
-            ((Compatible)contentView.get()).onUnbindParentView();
+            ((Compatible) contentView.get()).onUnbindParentView();
         }
         if (contentView != null) {
             contentView.clear();
@@ -102,7 +102,7 @@ public class SDDialogView extends View implements View.OnClickListener{
         }
     }
 
-    private SDDialogView(Builder builder) {
+    private SDDialogView(Builder.InnerBuilder builder) {
         super(builder.context);
         cancelable = builder.cancelable;
         contentView = new WeakReference<View>(builder.contentView);
@@ -114,47 +114,58 @@ public class SDDialogView extends View implements View.OnClickListener{
     }
 
     public static final class Builder {
-        private View contentView;
-        private boolean cancelable;
-        private Context context;
-        private OnDialogCloseListener listener;
-        private int requestCode;
-
-        public Builder() {
+        public InnerBuilder with(Context context) {
+            return new InnerBuilder(context);
         }
 
-        public Builder contentView(View val) {
-            contentView = val;
-            return this;
-        }
+        /**
+         * Inner builder class to instantiate the new SDDialogView,
+         * to get this you have to call Builder().with(context) and the use this to create the view
+         */
+        public static final class InnerBuilder {
+            //effective dialog to insert in overlay on the parent view
+            private View contentView;
+            // if true the dialog can be closed just by clicking on the gray area outside of the dialog
+            private boolean cancelable;
+            // needed to create the new SDDialogView
+            private Context context;
+            // listener called when closing the dialog
+            private OnDialogCloseListener listener;
+            private int requestCode;
 
-        public Builder with(Context context) {
-            this.context = context;
-            return this;
-        }
+            InnerBuilder(Context context) {
+                this.context = context;
+            }
 
-        public SDDialogView build() {
-            return new SDDialogView(this);
-        }
+            public InnerBuilder contentView(View val) {
+                contentView = val;
+                return this;
+            }
 
-        public Builder cancelable(boolean val) {
-            cancelable = val;
-            return this;
-        }
+            public SDDialogView build() {
+                return new SDDialogView(this);
+            }
 
-        public Builder requestCode(int val){
-            requestCode = val;
-            return this;
-        }
+            public InnerBuilder cancelable(boolean val) {
+                cancelable = val;
+                return this;
+            }
 
-        public Builder onDialogCloseListener(OnDialogCloseListener val){
-            listener = val;
-            return this;
+            public InnerBuilder requestCode(int val) {
+                requestCode = val;
+                return this;
+            }
+
+            public InnerBuilder onDialogCloseListener(OnDialogCloseListener val) {
+                listener = val;
+                return this;
+            }
         }
     }
 
-    public interface Compatible{
+    public interface Compatible {
         void onBindParentView(SDDialogView parent);
+
         void onUnbindParentView();
     }
 }
