@@ -8,6 +8,7 @@ custom animation: <br />
 
 ## Usage
 In the Activity where you need to show the dialog you need to do this
+java:
 
 ```java
         dialogView = new SDDialogView.Builder()
@@ -17,6 +18,16 @@ In the Activity where you need to show the dialog you need to do this
                     .requestCode(REQUEST_CODE)
                     .build();
         dialogView.showDialog(mMainContainer);
+```
+kotlin:
+```java
+        dialogView = SDDialogView.Builder()
+                    .with(this)
+                    .contentView(customDialog)
+                    .cancelable(true)
+                    .requestCode(REQUEST_CODE)
+                    .build();
+        dialogView.showDialog(main_container);
 ```
 By default there is a fadeIn animation, if you want to provide a custom animation when showing the dialog simply put into the builder
 ```java
