@@ -8,7 +8,7 @@ custom animation: <br />
 
 ## Usage
 In the Activity where you need to show the dialog you need to do this
-java:
+<br/>java:
 
 ```java
         dialogView = new SDDialogView.Builder()
