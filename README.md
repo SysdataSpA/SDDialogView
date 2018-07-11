@@ -33,7 +33,7 @@ kotlin:
 ```
 By default there will be no animations on showing and closing the dialog, if you want to use animations you need to use:
 ```java
-        builder.useAnimations(boolean)
+        builder.useAnimations(true)
 ```
 There are already a fadeIn animation and a fadeOut animation for showing and closing the dialog, if you wanto to add custom animation you need to use
 ```java
