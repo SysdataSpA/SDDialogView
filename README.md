@@ -26,10 +26,13 @@ kotlin:
         dialogView = SDDialogView.Builder()
                     .with(this)
                     .contentView(customDialog)
-                    .cancelable(true)
                     .requestCode(REQUEST_CODE)
                     .build();
         dialogView.showDialog(main_container);
+```
+By default the dialog can be closed bhy clicking on the grey part, outside of the dialog, if you want to close the dialog only by calling closeDialog add
+```java
+        builder.cancelable(false)
 ```
 By default there will be no animations on showing and closing the dialog, if you want to use animations you need to use:
 ```java
@@ -40,7 +43,7 @@ There are already a fadeIn animation and a fadeOut animation for showing and clo
         builder.enterAnimation(animation)
         builder.exitAnimation(animation)
 ```
-If you want to provide add a listener when closing the dialog
+If you want to provide a listener when closing the dialog
 ```java
         builder.onDialogCloseListener(listener)
 ```
