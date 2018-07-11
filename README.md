@@ -1,10 +1,12 @@
 # SDDialogView
 An android dialog based only on view
 
+no animation:<br />
+![No Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/animation_fix/no_animations.gif)<br />
 default animation:<br />
-![Default Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/feature/minor_updates/default_animation.gif)<br />
+![Default Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/animation_fix/default_animation.gif)<br />
 custom animation: <br />
-![Custom Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/feature/minor_updates/custom_animation.gif)
+![Custom Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/animation_fix/custom_animation.gif)
 
 ## Usage
 In the Activity where you need to show the dialog you need to do this
@@ -29,9 +31,14 @@ kotlin:
                     .build();
         dialogView.showDialog(main_container);
 ```
-By default there is a fadeIn animation, if you want to provide a custom animation when showing the dialog simply put into the builder
+By default there will be no animations on showing and closing the dialog, if you want to use animations you need to use:
+```java
+        builder.useAnimations(boolean)
+```
+There are already a fadeIn animation and a fadeOut animation for showing and closing the dialog, if you wanto to add custom animation you need to use
 ```java
         builder.enterAnimation(animation)
+        builder.exitAnimation(animation)
 ```
 If you want to provide add a listener when closing the dialog
 ```java
