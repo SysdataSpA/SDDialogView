@@ -20,6 +20,7 @@ import java.lang.ref.WeakReference;
  */
 
 public class SDDialogView extends View implements View.OnClickListener {
+    private Animation exitAnimation;
     private Animation enterAnimation;
     private int requestCode;
     private boolean cancelable;
@@ -30,20 +31,20 @@ public class SDDialogView extends View implements View.OnClickListener {
 
     public SDDialogView(Context context) {
         super(context);
-        init(context, null);
+        init(context);
     }
 
     public SDDialogView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
+        init(context);
     }
 
     public SDDialogView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs);
+        init(context);
     }
 
-    private void init(Context context, AttributeSet attrs) {
+    private void init(Context context) {
         view = new WeakReference<View>(LayoutInflater.from(context).inflate(R.layout.dialog_view, null));
     }
 
@@ -57,11 +58,11 @@ public class SDDialogView extends View implements View.OnClickListener {
     }
 
     public void showDialog(ViewGroup parent) {
-        this.parent = new WeakReference<ViewGroup>((ViewGroup) parent.getParent());
+        this.parent = new WeakReference<>((ViewGroup) parent.getParent());
         if (view == null || view.get() == null) {
-            view = new WeakReference<View>(LayoutInflater.from(getContext()).inflate(R.layout.dialog_view, null));
+            view = new WeakReference<>(LayoutInflater.from(getContext()).inflate(R.layout.dialog_view, null));
         }
-        LinearLayout dialogContainer = (LinearLayout) view.get().findViewById(R.id.dialog_container);
+        LinearLayout dialogContainer = view.get().findViewById(R.id.dialog_container);
         if (dialogContainer == null)
             return;
         dialogContainer.setOnClickListener(this);
@@ -79,7 +80,6 @@ public class SDDialogView extends View implements View.OnClickListener {
 
                     @Override
                     public void onViewDetachedFromWindow(View view) {
-
                     }
                 });
             }
@@ -96,13 +96,35 @@ public class SDDialogView extends View implements View.OnClickListener {
         closeDialog(0);
     }
 
-    public void closeDialog(int resultCode) {
+    public void closeDialog(final int resultCode) {
+        if (exitAnimation != null) {
+            exitAnimation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    removeViews(resultCode);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+            if (contentView != null && contentView.get() != null)
+                contentView.get().startAnimation(exitAnimation);
+        } else
+            removeViews(resultCode);
+    }
+
+    public void removeViews(int resultCode) {
         if (onCloseListener != null && onCloseListener.get() != null)
             onCloseListener.get().onClose(requestCode, resultCode);
         if (parent != null && parent.get() != null && view != null && view.get() != null) {
             parent.get().removeView(view.get());
         }
-        if (contentView != null && contentView.get() instanceof Compatible) {
+        if (contentView != null && contentView.get() != null && contentView.get() instanceof Compatible) {
             ((Compatible) contentView.get()).onUnbindParentView();
         }
         if (contentView != null) {
@@ -122,20 +144,31 @@ public class SDDialogView extends View implements View.OnClickListener {
     private SDDialogView(Builder.InnerBuilder builder) {
         super(builder.context);
         cancelable = builder.cancelable;
-        contentView = new WeakReference<View>(builder.contentView);
-        onCloseListener = new WeakReference<OnDialogCloseListener>(builder.listener);
+        contentView = new WeakReference<>(builder.contentView);
+        onCloseListener = new WeakReference<>(builder.listener);
         requestCode = builder.requestCode;
-        enterAnimation = builder.enterAnimation != null ? builder.enterAnimation:getFadeInAnimation();
+        if (builder.useAnimations) {
+            enterAnimation = builder.enterAnimation != null ? builder.enterAnimation : getFadeInAnimation();
+            exitAnimation = builder.exitAnimation != null ? builder.exitAnimation : getFadeOutAnimation();
+        }
         builder.context = null;
         builder.contentView = null;
         builder.listener = null;
+        builder.enterAnimation = null;
     }
 
-    private Animation getFadeInAnimation(){
+    private Animation getFadeInAnimation() {
         AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
         fadeIn.setInterpolator(new DecelerateInterpolator());
         fadeIn.setDuration(600);
         return fadeIn;
+    }
+
+    private Animation getFadeOutAnimation() {
+        AlphaAnimation fadeOut = new AlphaAnimation(1f, 0f);
+        fadeOut.setInterpolator(new DecelerateInterpolator());
+        fadeOut.setDuration(400);
+        return fadeOut;
     }
 
     public static final class Builder {
@@ -151,13 +184,18 @@ public class SDDialogView extends View implements View.OnClickListener {
             //effective dialog to insert in overlay on the parent view
             private View contentView;
             // if true the dialog can be closed just by clicking on the gray area outside of the dialog
-            private boolean cancelable;
+            private boolean cancelable = true;
+            // if true the dialog will have enter and exit animations
+            private boolean useAnimations;
             // needed to create the new SDDialogView
             private Context context;
             // listener called when closing the dialog
             private OnDialogCloseListener listener;
             private int requestCode;
+            // custom enter animation, if you don't set the animation there will be a fade-in animation
             private Animation enterAnimation;
+            // custom exit animation, if you don't set the animation there will be a fade-out animation
+            private Animation exitAnimation;
 
             InnerBuilder(Context context) {
                 this.context = context;
@@ -177,6 +215,11 @@ public class SDDialogView extends View implements View.OnClickListener {
                 return this;
             }
 
+            public InnerBuilder useAnimations(boolean val) {
+                useAnimations = val;
+                return this;
+            }
+
             public InnerBuilder requestCode(int val) {
                 requestCode = val;
                 return this;
@@ -184,6 +227,11 @@ public class SDDialogView extends View implements View.OnClickListener {
 
             public InnerBuilder enterAnimation(Animation val) {
                 enterAnimation = val;
+                return this;
+            }
+
+            public InnerBuilder exitAnimation(Animation val) {
+                exitAnimation = val;
                 return this;
             }
 

@@ -2,10 +2,7 @@ package com.example.salvatore.ktsddialogview
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.view.animation.AlphaAnimation
-import android.view.animation.BounceInterpolator
-import android.view.animation.DecelerateInterpolator
-import android.view.animation.ScaleAnimation
+import android.view.animation.*
 import android.widget.Toast
 import com.sysdata.kt.sddialog.OnDialogCloseListener
 import com.sysdata.kt.sddialog.SDDialogView
@@ -23,15 +20,19 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this@MainActivity, "close with $resultCode", Toast.LENGTH_SHORT).show()
                 }
             }
-            val fadeIn = ScaleAnimation(1f, 1f,0f, 1f)
-            fadeIn.interpolator = BounceInterpolator()
-            fadeIn.duration = 600
+            val enterAnimation = ScaleAnimation(1f, 1f,0f, 1f)
+            enterAnimation.interpolator = BounceInterpolator()
+            enterAnimation.duration = 600
+            val exitAnimation = ScaleAnimation(1f, 1f,1f, 0f)
+            exitAnimation.interpolator = AccelerateDecelerateInterpolator()
+            exitAnimation.duration = 600
             val sdDialogView = SDDialogView.Builder().with(this)
                     .contentView(customDialog)
                     .onCloseListener(listener)
-                    .cancelable(true)
                     .requestCode(1)
-                    .enterAnimation(fadeIn)
+                    .useAnimations(true)
+                    .enterAnimation(enterAnimation)
+                    .exitAnimation(exitAnimation)
                     .build()
             sdDialogView.showDialog(main_container)
         }
