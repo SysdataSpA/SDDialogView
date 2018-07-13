@@ -1,27 +1,52 @@
 # SDDialogView
 An android dialog based only on view
 
-no animation:<br />
-![No Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/animation_fix/no_animations.gif)<br />
-default animation:<br />
-![Default Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/animation_fix/default_animation.gif)<br />
-custom animation: <br />
+**No animation:**
+
+![No Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/animation_fix/no_animations.gif)
+
+**Default animation:**
+
+![Default Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/animation_fix/default_animation.gif)
+
+**Custom animation:**
+
 ![Custom Animation Example](https://github.com/SysdataSpA/SDDialogView/blob/animation_fix/custom_animation.gif)
 
 ## Usage
-In the Activity where you need to show the dialog you need to do this
-<br/>java:
+
+**Gradle**
+
+- **Project level `build.gradle`**
+```gradle
+allprojects {
+    repositories {
+        maven { url  'https://dl.bintray.com/sysdata/maven' }
+    }
+}
+```
+- **App level `build.gradle`**
+```gradle
+dependencies {
+    implementation 'it.sysdata.mobile:sddialogview:1.0.0'
+}
+```
+
+In the Activity where you need to show the dialog you have to do this
+
+**Java:**
 
 ```java
         dialogView = new SDDialogView.Builder()
                     .with(this)
                     .contentView(customDialog)
-                    .cancelable(true)
                     .requestCode(REQUEST_CODE)
                     .build();
         dialogView.showDialog(mMainContainer);
 ```
-kotlin:
+
+**Kotlin:**
+
 ```java
         dialogView = SDDialogView.Builder()
                     .with(this)
